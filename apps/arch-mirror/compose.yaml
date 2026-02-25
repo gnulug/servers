@@ -9,7 +9,9 @@ services:
     volumes:
       - ./data:/data
     restart: always
-    tty: true
+    # If tty, it always rsyncs
+    # Else, it checks lastupdate
+    # tty: true
     environment:
       # Changable to any Tier 1 mirror (https://www.archlinux.org/mirrors/)
       source_url: rsync://plug-mirror.rcac.purdue.edu/archlinux/

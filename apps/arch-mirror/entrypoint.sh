@@ -94,7 +94,9 @@ rsync_cmd \
 
 echo "Last sync was $(date -d @$(cat ${target}/lastsync))"
 
-# Wait 3 minutes before trying to rsync
-echo "Sleeping 180 seconds ...."
-sleep 180
+# Requirements:
+# Do not sync more often than every hour, but you should sync at least once a day
+# Sync on a random minute so it is more likely the requests will be spaced out with other mirrors
+echo "Sleeping for 3 hours..."
+sleep 10800
 echo "Continuing with next rsync script ...."
