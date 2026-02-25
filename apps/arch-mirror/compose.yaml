@@ -1,0 +1,16 @@
+# Adapted from https://github.com/XigenIO/Docker-ArchMirror
+name: arch-mirror
+
+services:
+  rsync:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/data
+    restart: always
+    tty: true
+    environment:
+      # Changable to any Tier 1 mirror (https://www.archlinux.org/mirrors/)
+      source_url: rsync://plug-mirror.rcac.purdue.edu/archlinux/
+      lastupdate_url: https://plug-mirror.rcac.purdue.edu/archlinux/lastupdate
