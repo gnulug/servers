@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./data:/data
+      - ../../volumes/arch-mirror:/data
     restart: always
     # If tty, it always rsyncs
     # Else, it checks lastupdate
