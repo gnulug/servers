@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Adapted from https://github.com/XigenIO/Docker-ArchMirror
+# and https://gitlab.archlinux.org/archlinux/infrastructure/-/blob/master/roles/syncrepo/files/syncrepo-template.sh
 
 # This is a simple mirroring script. To save bandwidth it first checks a
 # timestamp via HTTP and only runs rsync when the timestamp differs from the
@@ -8,8 +9,6 @@
 # 6MiB of data which adds up to roughly 250GiB of traffic per month when rsync
 # is run every minute. Performing a simple check via HTTP first can thus save a
 # lot of traffic.
-
-#### CONFIG
 
 # Directory where the repo is stored locally. Example: /srv/repo
 target="/data"
@@ -34,8 +33,11 @@ bwlimit=0
 # https://www.archlinux.org/mirrors/
 # source_url=''
 
+# Set to 0 if the mirror does not support TLS.
+tls=1
+
 # An HTTP(S) URL pointing to the 'lastupdate' file on your chosen mirror.
-# If you are a tier 1 mirror use: http://rsync.archlinux.org/lastupdate
+# If you are a tier 1 mirror use: https://rsync.archlinux.org/lastupdate
 # Otherwise use the HTTP(S) URL from your chosen mirror.
 # lastupdate_url=''
 
@@ -47,9 +49,20 @@ bwlimit=0
 exec 9>"${lock}"
 flock -n 9 || exit
 
+# Cleanup any temporary files from old run that might remain.
+# Note: You can skip this if you have rsync newer than 3.2.3
+# not affected by https://github.com/WayneD/rsync/issues/192
+# find "${target}" -name '.~tmp~' -exec rm -r {} +
+
 rsync_cmd() {
-    local -a cmd=(rsync -rtlH --safe-links --delete-after ${VERBOSE} "--timeout=600" -p \
-        --delay-updates --no-motd "--temp-dir=${tmp}")
+    local -a cmd
+    if ((tls>0)); then
+        cmd=(rsync-ssl --type=openssl)
+    else
+        cmd=(rsync)
+    fi
+    cmd+=(-rlptH --safe-links --delete-delay --delay-updates
+        "--timeout=600" --no-motd "--temp-dir=${tmp} ${VERBOSE}")
 
     if stty &>/dev/null; then
         cmd+=(-h -v --progress)
@@ -74,15 +87,8 @@ fi
 
 rsync_cmd \
     --exclude='*.links.tar.gz*' \
-    --exclude='/community-staging' \
-    --exclude='/community-testing' \
-    --exclude='/gnome-unstable' \
-    --exclude='/kde-unstable' \
-    --exclude='/multilib*' \
-    --exclude='/staging' \
+    --exclude='/other' \
     --exclude='/sources' \
-    --exclude='/iso' \
-    --exclude='/testing' \
     "${source_url}" \
     "${target}"
 
