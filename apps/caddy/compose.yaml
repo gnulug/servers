@@ -1,0 +1,19 @@
+# Adapted from https://caddyserver.com/docs/running#docker-compose
+name: caddy
+
+services:
+  caddy:
+    image: caddy:2.11
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3 support
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ../../volumes/caddy/data:/data  # TLS certificates, keys, etc.
+      - ../../volumes/caddy/config:/config  # Persisted last used config, etc.
+
+networks:
+  default:
+    name: caddy_network

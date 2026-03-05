@@ -1,0 +1,3 @@
+arch.mirrors.lug.acm.illinois.edu {
+    reverse_proxy http://arch-mirror:80
+}
