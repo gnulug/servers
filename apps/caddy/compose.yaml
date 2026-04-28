@@ -3,16 +3,17 @@ name: caddy
 
 services:
   caddy:
-    image: caddy:2.11
+    container_name: caddy
     restart: unless-stopped
+    image: caddy:2.11
     ports:
       - "80:80"
       - "443:443"
-      - "443:443/udp"  # HTTP/3 support
+      - "443:443/udp" # HTTP/3 support
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - ../../volumes/caddy/data:/data  # TLS certificates, keys, etc.
-      - ../../volumes/caddy/config:/config  # Persisted last used config, etc.
+      - ../../volumes/caddy/data:/data # TLS certificates, keys, etc.
+      - ../../volumes/caddy/config:/config # Persisted last used config, etc.
 
 networks:
   default:

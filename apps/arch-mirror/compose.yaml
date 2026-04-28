@@ -2,13 +2,14 @@
 name: arch-mirror
 
 services:
-  rsync:
+  arch-mirror:
+    container_name: arch-mirror
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
       - ../../volumes/arch-mirror:/data
-    restart: unless-stopped
     # If tty, it always rsyncs
     # Else, it checks lastupdate
     # tty: true
