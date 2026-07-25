@@ -86,8 +86,15 @@ while true; do
     if ! [ -t 0 ] && [[ -f "$target/lastupdate" ]] \
         && diff -b <(curl -Ls "$lastupdate_url") "$target/lastupdate" >/dev/null; then
         # Unchanged: only refresh lastsync for Arch mirror statistics
+        echo "Mirror was last synced $(date -d @"$(cat "${target}/lastsync")"), no changes since $(date -d @"$(cat "${target}/lastupdate")")."
         rsync_cmd "$source_url/lastsync" "$target/lastsync" || exit 1
     else
+        if [[ -f "$target/lastupdate" ]]; then
+            echo "Upstream changed since $(date -d @"$(cat "${target}/lastupdate")"), starting full sync..."
+        else
+            echo "No local mirror yet, starting initial full sync..."
+        fi
+
         rsync_cmd \
             --exclude='*.links.tar.gz*' \
             --exclude='/other' \
@@ -96,10 +103,10 @@ while true; do
             "${target}" \
             || exit 1
 
-        echo "Last sync was $(date -d @"$(cat "${target}/lastsync")")"
+        echo "Full sync finished. Mirror last synced $(date -d @"$(cat "${target}/lastsync")"), upstream last updated $(date -d @"$(cat "${target}/lastupdate")")."
     fi
 
     # Do not sync more often than every hour; at least once a day is enough.
-    echo "Sleeping for 3 hours..."
+    echo "Sleeping until $(date -d @$(($(date +%s) + 10800))), next check in 3 hours..."
     sleep 10800
 done
