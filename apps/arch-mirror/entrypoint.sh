@@ -107,6 +107,6 @@ while true; do
     fi
 
     # Do not sync more often than every hour; at least once a day is enough.
-    echo "Sleeping until $(date -d @$(($(date +%s) + 10800))), next check in 3 hours..."
+    echo "Sleeping until $(date -d @$(($(date +%s) + 10800))) (3 hours from now)..."
     sleep 10800
 done
