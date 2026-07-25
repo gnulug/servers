@@ -4,6 +4,7 @@ FROM alpine:3.23
 RUN apk add --update \
     rsync \
     openssh-client \
+    openssl \
     bash \
     curl  \
     && rm -rf /var/cache/apk/* \
