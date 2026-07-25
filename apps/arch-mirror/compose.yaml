@@ -15,6 +15,6 @@ services:
     # tty: true
     environment:
       # Changable to any Tier 1 mirror (https://www.archlinux.org/mirrors/)
-      source_url: rsync://plug-mirror.rcac.purdue.edu/archlinux/
-      lastupdate_url: https://plug-mirror.rcac.purdue.edu/archlinux/lastupdate
-      tls: "0"
+      source_url: rsync://losangeles.mirror.pkgbuild.com/packages/
+      lastupdate_url: https://losangeles.mirror.pkgbuild.com/lastupdate
+      tls: "1"
