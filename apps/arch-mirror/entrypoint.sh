@@ -33,8 +33,10 @@ bwlimit=0
 # https://www.archlinux.org/mirrors/
 # source_url=''
 
-# Set to 0 if the mirror does not support TLS.
-tls=1
+# Set to 1 only if the mirror supports rsync over TLS (port 874).
+# Most mirrors do not,
+# See https://wiki.archlinux.org/title/DeveloperWiki:NewMirrors#rsync_over_TLS
+tls="${tls:-0}"
 
 # An HTTP(S) URL pointing to the 'lastupdate' file on your chosen mirror.
 # If you are a tier 1 mirror use: https://rsync.archlinux.org/lastupdate
