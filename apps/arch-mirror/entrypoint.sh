@@ -79,6 +79,10 @@ rsync_cmd() {
     "${cmd[@]}" "$@"
 }
 
+# Format a unix-timestamp file (lastsync, lastupdate, …) as a human-readable date.
+file_date() {
+    TZ=America/Chicago date -d @"$(cat "$1")"
+}
 
 while true; do
     # Without a tty, skip the full sync when lastupdate is unchanged.
@@ -86,11 +90,11 @@ while true; do
     if ! [ -t 0 ] && [[ -f "$target/lastupdate" ]] \
         && diff -b <(curl -Ls "$lastupdate_url") "$target/lastupdate" >/dev/null; then
         # Unchanged: only refresh lastsync for Arch mirror statistics
-        echo "Mirror was last synced $(date -d @"$(cat "${target}/lastsync")"), no changes since $(date -d @"$(cat "${target}/lastupdate")")."
+        echo "Mirror was last synced $(file_date "${target}/lastsync"), no changes since $(file_date "${target}/lastupdate")."
         rsync_cmd "$source_url/lastsync" "$target/lastsync" || exit 1
     else
         if [[ -f "$target/lastupdate" ]]; then
-            echo "Upstream changed since $(date -d @"$(cat "${target}/lastupdate")"), starting full sync..."
+            echo "Upstream changed since $(file_date "${target}/lastupdate"), starting full sync..."
         else
             echo "No local mirror yet, starting initial full sync..."
         fi
@@ -103,10 +107,10 @@ while true; do
             "${target}" \
             || exit 1
 
-        echo "Full sync finished. Mirror last synced $(date -d @"$(cat "${target}/lastsync")"), upstream last updated $(date -d @"$(cat "${target}/lastupdate")")."
+        echo "Full sync finished. Mirror last synced $(file_date "${target}/lastsync"), upstream last updated $(file_date "${target}/lastupdate")."
     fi
 
     # Do not sync more often than every hour; at least once a day is enough.
-    echo "Sleeping until $(date -d @$(($(date +%s) + 10800))) (3 hours from now)..."
+    echo "Sleeping until $(TZ=America/Chicago date -d @$(($(date +%s) + 10800))) (3 hours from now)..."
     sleep 10800
 done

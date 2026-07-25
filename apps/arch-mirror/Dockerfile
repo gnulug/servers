@@ -6,7 +6,8 @@ RUN apk add --update \
     openssh-client \
     openssl \
     bash \
-    curl  \
+    curl \
+    tzdata \
     && rm -rf /var/cache/apk/* \
     && mkdir /data
 
