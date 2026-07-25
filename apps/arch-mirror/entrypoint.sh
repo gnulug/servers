@@ -64,7 +64,7 @@ rsync_cmd() {
         cmd=(rsync)
     fi
     cmd+=(-rlptH --safe-links --delete-delay --delay-updates
-        "--timeout=600" --no-motd "--temp-dir=${tmp} ${VERBOSE}")
+        "--timeout=600" --no-motd "--temp-dir=${tmp}" ${VERBOSE})
 
     if stty &>/dev/null; then
         cmd+=(-h -v --progress)
