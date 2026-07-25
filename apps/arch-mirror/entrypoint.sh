@@ -92,7 +92,8 @@ rsync_cmd \
     --exclude='/other' \
     --exclude='/sources' \
     "${source_url}" \
-    "${target}"
+    "${target}" \
+    || exit 1
 
 echo "Last sync was $(date -d @$(cat ${target}/lastsync))"
 
