@@ -14,6 +14,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ../../volumes/caddy/data:/data # TLS certificates, keys, etc.
       - ../../volumes/caddy/config:/config # Persisted last used config, etc.
+      - ../../volumes/arch-mirror:/ext/arch-mirror # Mount the arch-mirror volume to serve files
 
 networks:
   default:

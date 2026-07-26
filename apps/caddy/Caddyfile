@@ -1,3 +1,4 @@
 arch-mirror.lug.acm.illinois.edu, http://arch-mirror.localhost {
-    reverse_proxy http://arch-mirror:80
+    root /ext/arch-mirror
+    file_server browse
 }
