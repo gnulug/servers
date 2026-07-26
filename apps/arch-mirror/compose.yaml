@@ -16,5 +16,6 @@ services:
     environment:
       # Changable to any Tier 1 mirror (https://www.archlinux.org/mirrors/)
       source_url: rsync://losangeles.mirror.pkgbuild.com/packages/
+      lastsync_url: https://losangeles.mirror.pkgbuild.com/lastsync
       lastupdate_url: https://losangeles.mirror.pkgbuild.com/lastupdate
       tls: "1"

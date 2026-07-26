@@ -38,6 +38,11 @@ bwlimit=0
 # See https://wiki.archlinux.org/title/DeveloperWiki:NewMirrors#rsync_over_TLS
 tls="${tls:-0}"
 
+# An HTTP(S) URL pointing to the 'lastsync' file on your chosen mirror.
+# If you are a tier 1 mirror use: https://rsync.archlinux.org/lastsync
+# Otherwise use the HTTP(S) URL from your chosen mirror.
+# lastsync_url=''
+
 # An HTTP(S) URL pointing to the 'lastupdate' file on your chosen mirror.
 # If you are a tier 1 mirror use: https://rsync.archlinux.org/lastupdate
 # Otherwise use the HTTP(S) URL from your chosen mirror.
@@ -79,24 +84,51 @@ rsync_cmd() {
     "${cmd[@]}" "$@"
 }
 
-# Format a unix-timestamp file (lastsync, lastupdate, …) as a human-readable date.
+# Format a unix timestamp as a human-readable Central date.
+ts_date() {
+    local ts
+    ts=$(tr -d '[:space:]' <<<"$1")
+    if [[ "$ts" =~ ^[0-9]+$ ]]; then
+        TZ=America/Chicago date -d @"$ts"
+    else
+        echo "n/a"
+    fi
+}
+
+# Same for a unix-timestamp file (lastsync, lastupdate, …).
 file_date() {
-    TZ=America/Chicago date -d @"$(cat "$1")"
+    if [[ -f "$1" ]]; then
+        ts_date "$(cat "$1")"
+    else
+        echo "n/a"
+    fi
 }
 
 while true; do
+    upstream_lastsync=$(ts_date "$(curl -Ls "$lastsync_url")")
+    upstream_lastupdate=$(ts_date "$(curl -Ls "$lastupdate_url")")
+    local_lastsync=$(file_date "${target}/lastsync")
+    local_lastupdate=$(file_date "${target}/lastupdate")
+
+    echo "Starting sync at $(TZ=America/Chicago date)"
+    echo ""
+    echo "Upstream: last synced  ${upstream_lastsync}"
+    echo "Upstream: last updated ${upstream_lastupdate}"
+    echo "Local:    last synced  ${local_lastsync}"
+    echo "Local:    last updated ${local_lastupdate}"
+    echo ""
+
     # Without a tty, skip the full sync when lastupdate is unchanged.
     # With a tty (or on first run), always do a full sync.
-    if ! [ -t 0 ] && [[ -f "$target/lastupdate" ]] \
-        && diff -b <(curl -Ls "$lastupdate_url") "$target/lastupdate" >/dev/null; then
+    if ! [ -t 0 ] && [[ "$local_lastupdate" != "n/a" && "$upstream_lastupdate" == "$local_lastupdate" ]]; then
         # Unchanged: only refresh lastsync for Arch mirror statistics
-        echo "Mirror was last synced $(file_date "${target}/lastsync"), no changes since $(file_date "${target}/lastupdate")."
+        echo "Upstream was not updated since last sync; skipping update and bumping local last sync value..."
         rsync_cmd "$source_url/lastsync" "$target/lastsync" || exit 1
     else
-        if [[ -f "$target/lastupdate" ]]; then
-            echo "Upstream changed since $(file_date "${target}/lastupdate"), starting full sync..."
-        else
+        if [[ "$local_lastupdate" == "n/a" ]]; then
             echo "No local mirror yet, starting initial full sync..."
+        else
+            echo "Upstream was updated with new content since last sync; starting full sync..."
         fi
 
         rsync_cmd \
@@ -106,11 +138,11 @@ while true; do
             "${source_url}" \
             "${target}" \
             || exit 1
-
-        echo "Full sync finished. Mirror last synced $(file_date "${target}/lastsync"), upstream last updated $(file_date "${target}/lastupdate")."
     fi
 
     # Do not sync more often than every hour; at least once a day is enough.
+    echo "Sync complete at $(TZ=America/Chicago date)"
     echo "Sleeping until $(TZ=America/Chicago date -d @$(($(date +%s) + 10800))) (3 hours from now)..."
+    echo ""
     sleep 10800
 done
