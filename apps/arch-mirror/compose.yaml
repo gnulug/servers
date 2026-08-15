@@ -19,3 +19,29 @@ services:
       lastsync_url: https://losangeles.mirror.pkgbuild.com/lastsync
       lastupdate_url: https://losangeles.mirror.pkgbuild.com/lastupdate
       tls: "1"
+
+  arch-mirror-rsync:
+    container_name: arch-mirror-rsync
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ["rsync"]
+    command: ["--daemon", "--no-detach", "--config=/etc/rsyncd.conf"]
+    ports:
+      - "873:873"
+    volumes:
+      - ../../volumes/arch-mirror:/data:ro
+      - ./rsyncd.conf:/etc/rsyncd.conf:ro
+    read_only: true
+    tmpfs:
+      - /run
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+      - SETGID
+      - SETUID
+      - SYS_CHROOT
+    security_opt:
+      - no-new-privileges:true
