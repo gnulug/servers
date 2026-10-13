@@ -1,3 +1,4 @@
 include:
   - apps/arch-mirror/compose.yaml
   - apps/caddy/compose.yaml
+  - apps/rsync/compose.yaml

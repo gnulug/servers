@@ -6,6 +6,7 @@ The top-level `compose.yaml` includes compose files for all services that should
 
 The services included are:
 - **Caddy**: Acts as the top-level reverse proxy for all other services
+- **Rsync**: Exposes a public rsync daemon for all mirrors
 - **Arch Mirror**: Hosts an Arch Linux mirror
 
 The `volumes` directory contains persistent data that services can mount into their containers.
