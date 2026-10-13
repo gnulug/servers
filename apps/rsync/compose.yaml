@@ -11,6 +11,7 @@ services:
       - "873:873"
     volumes:
       - ./rsyncd.conf:/etc/rsyncd.conf:ro
+      - ./rsyncd.motd:/etc/rsyncd.motd:ro
       - ../../volumes/arch-mirror:/ext/mirrors/archlinux:ro
     read_only: true
     tmpfs:
