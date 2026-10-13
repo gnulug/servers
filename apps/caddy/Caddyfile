@@ -1,4 +1,4 @@
-http://arch-mirror.lug.acm.illinois.edu, https://arch-mirror.lug.acm.illinois.edu, http://arch-mirror.localhost {
-	root /ext/arch-mirror
+http://mirrors.lug.acm.illinois.edu, https://mirrors.lug.acm.illinois.edu, http://mirrors.localhost {
+	root /ext/mirrors
 	file_server browse
 }
